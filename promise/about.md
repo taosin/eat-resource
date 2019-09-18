@@ -11,12 +11,11 @@
 
 有了 `Promise` 对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。此外，`Promise` 对象提供统一的接口，使得控制异步操作更加容易。
 
-`Promise` 的缺点。
-i. 无法取消 `Promise` ，一旦新建它就会立即执行，无法中途取消；
+`Promise` 的缺点:
 
-ii. 如果不设置回调函数，`Promise` 内部抛出的错误，不会反应到外部；
-
-iii. 当处于 `pending` 状态时，无法得知目前进展到拿一个阶段。
+* 无法取消 `Promise` ，一旦新建它就会立即执行，无法中途取消；
+* 如果不设置回调函数，`Promise` 内部抛出的错误，不会反应到外部；
+* 当处于 `pending` 状态时，无法得知目前进展到拿一个阶段。
 
 > 如果某些事件不断反复发生，一般来说，使用 `Stream` 模式是比部署 `Promise` 更好地选择。
 
@@ -49,3 +48,47 @@ promise.then(res => {
 ```
 
 观察上面代码可以看出，`Promise` 生成实例以后，可以用 `then` 方法分别指定 `resolved` 和 `rejected` 状态的回调函数。
+
+* Promise 的执行顺序
+
+```js
+let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  resolve();
+});
+promise.then(function() {
+  console.log('resolved.');
+});
+console.log('Hi!');
+```
+
+上面的代码输出为
+
+```bash
+// Promise
+// Hi!
+// resolve
+```
+
+从上面代码可以看出，Promise 新建后会立即执行，所以 `Promise` 首先输出。然后是同步任务 `Hi!`，而 `then` 方法指定的回调函数，将在当前脚本所有同步任务执行完才会执行，因此 `resolved` 最后输出。
+
+### 3. Promise 应用场景
+
+1. 图片异步加载
+
+```js
+function loadImageAsync(function(resolve, reject)) {
+    const img = new Image()
+    img.onload = function(){
+        resolve(img)
+    }
+
+    img.onrror = function(){
+        reject(new Error('could not load image at' + url))
+    }
+
+    img.src = url
+}
+```
+
+该代码中，使用 `Promise` 包装了一个图片加载的异步操作。如果加载成功，就调用 `resolve` 方法，否则调用 `reject` 方法。
